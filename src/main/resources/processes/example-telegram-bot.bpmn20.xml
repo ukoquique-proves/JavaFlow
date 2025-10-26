@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:flowable="http://flowable.org/bpmn"
+             targetNamespace="http://javaflow.com/processes">
+
+  <process id="telegramBotProcess" name="Telegram Bot Response Process" isExecutable="true">
+    
+    <startEvent id="startEvent" name="Message Received"/>
+    
+    <sequenceFlow sourceRef="startEvent" targetRef="logMessageTask"/>
+    
+    <!-- Log del mensaje recibido -->
+    <serviceTask id="logMessageTask" name="Log Message" 
+                 flowable:delegateExpression="${logTask}">
+      <extensionElements>
+        <flowable:field name="logLevel">
+          <flowable:string>INFO</flowable:string>
+        </flowable:field>
+        <flowable:field name="logMessage">
+          <flowable:expression>${'Message received: ' + messageText}</flowable:expression>
+        </flowable:field>
+      </extensionElements>
+    </serviceTask>
+    
+    <sequenceFlow sourceRef="logMessageTask" targetRef="processMessageTask"/>
+    
+    <!-- Procesar mensaje -->
+    <scriptTask id="processMessageTask" name="Process Message" scriptFormat="javascript">
+      <script>
+        var messageText = execution.getVariable('messageText');
+        var response = 'Echo: ' + messageText;
+        execution.setVariable('response', response);
+      </script>
+    </scriptTask>
+    
+    <sequenceFlow sourceRef="processMessageTask" targetRef="sendResponseTask"/>
+    
+    <!-- Enviar respuesta -->
+    <serviceTask id="sendResponseTask" name="Send Response" 
+                 flowable:delegateExpression="${sendMessageTask}">
+      <extensionElements>
+        <flowable:field name="message">
+          <flowable:expression>${response}</flowable:expression>
+        </flowable:field>
+      </extensionElements>
+    </serviceTask>
+    
+    <sequenceFlow sourceRef="sendResponseTask" targetRef="endEvent"/>
+    
+    <endEvent id="endEvent" name="Process Complete"/>
+    
+  </process>
+
+</definitions>

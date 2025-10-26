@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/javaflow_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+    
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1
+      leak-detection-threshold: 60000
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+# Telegram Bot (Local Testing)
+javaflow:
+  bot:
+    telegram:
+      enabled: true
+      token: ${TELEGRAM_BOT_TOKEN:your-bot-token-here}
+      username: ${TELEGRAM_BOT_USERNAME:your-bot-username}
+    whatsapp:
+      enabled: false
+
+logging:
+  level:
+    com.javaflow: DEBUG
+    org.flowable: DEBUG

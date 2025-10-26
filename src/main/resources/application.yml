@@ -1,0 +1,108 @@
+spring:
+  application:
+    name: JavaFlow
+  
+  profiles:
+    active: ${ENVIRONMENT:local}
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+        default_batch_fetch_size: 10  # Prevents N+1 queries
+  
+  # Jackson JSON
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: UTC
+  
+  # Cache Configuration
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=600s
+    cache-names:
+      - workflows
+      - workflow-executions
+      - users
+      - bots
+
+# Flowable Configuration
+flowable:
+  async-executor-activate: true
+  database-schema-update: true
+  process-definition-cache-limit: 100
+  
+# Server Configuration
+server:
+  port: 8080
+  compression:
+    enabled: true
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# Actuator Endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,shutdown
+  endpoint:
+    shutdown:
+      enabled: true  # Only used in dev/local profiles for port conflict resolution
+    health:
+      show-details: always
+  metrics:
+    export:
+      simple:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+      environment: ${spring.profiles.active}
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.javaflow: DEBUG
+    org.flowable: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/javaflow.log
+    max-size: 10MB
+    max-history: 30
+
+# Application Specific
+javaflow:
+  security:
+    jwt:
+      secret: ${JWT_SECRET:your-secret-key-change-in-production-min-256-bits-long}
+      expiration: 86400000 # 24 hours
+    encryption:
+      # Base64-encoded 256-bit (32 bytes) key for token encryption
+      # Generate with: openssl rand -base64 32
+      # IMPORTANT: Set via environment variable in production
+      key: ${ENCRYPTION_KEY:}
+  bot:
+    telegram:
+      enabled: true
+    whatsapp:
+      enabled: false
+  workflow:
+    max-concurrent-executions: 100
+    execution-timeout: 300000 # 5 minutes

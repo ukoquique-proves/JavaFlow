@@ -1,0 +1,76 @@
+spring:
+  datasource:
+    # Supabase PostgreSQL Connection
+    url: jdbc:postgresql://${SUPABASE_DB_HOST:db.xxxxxxxxxxxx.supabase.co}:${SUPABASE_DB_PORT:5432}/${SUPABASE_DB_NAME:postgres}?sslmode=require
+    username: ${SUPABASE_DB_USER:postgres}
+    password: ${SUPABASE_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    
+    hikari:
+      # CRÍTICO: Límite bajo para plan gratuito (60 conexiones totales)
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1
+      leak-detection-threshold: 60000
+      
+      # SSL Configuration
+      data-source-properties:
+        ssl: true
+        sslmode: require
+  
+  jpa:
+    hibernate:
+      # IMPORTANTE: No usar update en producción
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+# Supabase Specific Configuration
+supabase:
+  url: ${SUPABASE_URL:https://xxxxxxxxxxxx.supabase.co}
+  anon-key: ${SUPABASE_ANON_KEY}
+  service-role-key: ${SUPABASE_SERVICE_ROLE_KEY}
+  jwt-secret: ${SUPABASE_JWT_SECRET}
+
+# Flowable with reduced resources
+flowable:
+  async-executor-activate: true
+  async-executor-core-pool-size: 2
+  async-executor-max-pool-size: 5
+
+# Telegram Bot (Production)
+javaflow:
+  bot:
+    telegram:
+      enabled: ${TELEGRAM_ENABLED:true}
+      token: ${TELEGRAM_BOT_TOKEN}
+      username: ${TELEGRAM_BOT_USERNAME}
+    whatsapp:
+      enabled: ${WHATSAPP_ENABLED:false}
+
+# Production Actuator Configuration (Supabase)
+management:
+  endpoints:
+    web:
+      exposure:
+        # Exclude shutdown endpoint in production for security
+        include: health,info,metrics,prometheus
+  endpoint:
+    shutdown:
+      enabled: false  # DISABLED in production for security
+    health:
+      show-details: when-authorized  # Hide details from public
+
+logging:
+  level:
+    root: INFO
+    com.javaflow: INFO
+    org.flowable: WARN

@@ -1,0 +1,34 @@
+# Production Profile Configuration
+spring:
+  application:
+    name: JavaFlow
+  profiles:
+    active: prod
+
+# Production Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        # Exclude shutdown endpoint in production for security
+        include: health,info,metrics,prometheus
+  endpoint:
+    shutdown:
+      enabled: false  # DISABLED in production for security
+    health:
+      show-details: when-authorized  # Hide details from public
+  metrics:
+    export:
+      simple:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+      environment: prod
+
+# Production Logging
+logging:
+  level:
+    root: INFO
+    com.javaflow: INFO
+    org.springframework: WARN
+    org.hibernate: WARN
