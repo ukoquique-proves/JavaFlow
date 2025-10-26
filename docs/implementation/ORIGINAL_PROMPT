@@ -1,0 +1,34 @@
+Quiero que actúes como un arquitecto de software experto en Java, Spring Boot, Vaadin y motores de workflow.  
+Necesito que me hagas un **plan completo para construir un sistema tipo n8n**, con las siguientes características:
+
+1. Backend en **Spring Boot** que maneje flujos de trabajo (workflows).
+2. UI administrativa en **Vaadin**, donde pueda:
+   - Visualizar flujos y nodos de bots.
+   - Ejecutar, pausar o reiniciar flujos.
+   - Visualizar logs y estado de bots.
+3. Motor de ejecución de workflows en **Java** (preferiblemente embebido en Spring Boot), usando **Flowable** o **NiFi**.
+4. Base de datos **PostgreSQL local** para almacenar:
+   - Flujos
+   - Usuarios
+   - Logs
+   - Datos de bots
+5. Integración con **Telegram y WhatsApp Web** para enviar y recibir mensajes desde bots.
+6. Flujo de datos general: mensaje del cliente → backend → motor de workflow → base de datos → respuestas y registro.
+7. Todo debe ser **local primero**, para no depender de la nube ni generar pagos.
+8. Generar **diagramas de arquitectura** paso a paso (con texto tipo ASCII o descripción de bloques) que muestren cómo fluye la información.
+9. Explicar los **ajustes necesarios si en el futuro quisiera usar Supabase**, incluyendo:
+   - Cambios de conexión JDBC
+   - Configuración SSL
+   - Row-Level Security y JWT
+   - Límites del plan gratuito
+   - Posibles problemas de compatibilidad
+10. Sugerir **opciones alternativas a Supabase** que sean Java-friendly y gratuitas (VPS, Docker, PostgreSQL local).
+11. Detallar **pasos concretos de implementación**, desde instalación de PostgreSQL hasta integración con Flowable y Vaadin, incluyendo código de ejemplo y configuración mínima.
+12. Advertir de los **puntos críticos** que pueden dar errores si se migra a Supabase en el futuro y cómo mitigarlos.
+
+Quiero que me entregues:
+- Un **diagrama completo de arquitectura local** y uno futuro con Supabase.
+- **Esquema de flujo de datos**
+- **Ejemplos de código** para Spring Boot + Flowable + Vaadin + PostgreSQL
+- Recomendaciones prácticas para **no depender de la nube inicialmente**.
+- Estrategia para que cuando llegue el momento de usar Supabase, la migración sea lo más sencilla posible.
