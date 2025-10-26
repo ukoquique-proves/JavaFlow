@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.0.1] - 2025-10-26
+
+### 🎨 Visual Workflow Editor Integration
+- **Flowable Modeler Integration**: Added complete Docker Compose setup for the official Flowable visual workflow editor
+  - New service running on port 8088 with PostgreSQL backend
+  - Seamless integration with existing JavaFlow application architecture
+  - Visual drag-and-drop BPMN workflow design capability
+- **Enhanced User Experience**: Added direct navigation link from JavaFlow UI to visual editor
+  - Integrated "Visual Editor" button in the Workflows section of the main navigation
+  - Opens editor in new tab for seamless workflow design experience
+- **Complete Documentation**: Created comprehensive guides for the new feature
+  - `docs/MODELER.md`: Step-by-step usage guide for designing and integrating workflows
+  - `docs/implementation/VISUAL_EDITOR_INTEGRATION.md`: Technical integration plan
+  - `docs/n8n-vs-modeler.md`: Comparison between n8n and Flowable Modeler approaches
+
+### 🐛 Bug Fixes
+- **Circular Dependency Resolution**: Fixed critical circular dependency between `BotService` and command handlers
+  - Refactored `BotService` to use `@Lazy` annotation and `ApplicationContext` for on-demand bean resolution
+  - Eliminated dependency cycles that prevented application startup
+  - Maintained all existing functionality while resolving Spring Boot context loading issues
+
+### 📚 Documentation Updates
+- **README Enhancement**: Updated main README with Docker Compose quick start guide
+  - Added instructions for running complete ecosystem (JavaFlow + PostgreSQL + Visual Editor)
+  - Included access URLs and default credentials for all services
+  - Streamlined setup process for new users
+
+---
+
 ## [1.0.0] - 2025-10-25
 
 ### 🚀 Major Architecture Improvements
