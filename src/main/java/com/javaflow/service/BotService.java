@@ -8,6 +8,8 @@ import com.javaflow.repository.BotConfigurationRepository;
 import com.javaflow.repository.MessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,18 +21,38 @@ import java.util.Map;
  * Servicio para gestión de Bots
  */
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class BotService {
 
     private final BotConfigurationRepository botRepository;
     private final MessageRepository messageRepository;
     private final Map<String, BotPort> botAdapters;
-    private final WorkflowService workflowService; // Added for command processing
+    private final WorkflowService workflowService;
     private final com.javaflow.monitoring.MetricsService metricsService;
     private final com.javaflow.security.TokenEncryptionService encryptionService;
-    private final Map<String, com.javaflow.bot.command.BotCommandHandler> commandHandlers;
+    private final ApplicationContext applicationContext;
     private final com.javaflow.bot.command.UnknownCommandHandler unknownCommandHandler;
+
+    @Lazy
+    public BotService(
+        BotConfigurationRepository botRepository, 
+        MessageRepository messageRepository, 
+        Map<String, BotPort> botAdapters, 
+        WorkflowService workflowService, 
+        com.javaflow.monitoring.MetricsService metricsService, 
+        com.javaflow.security.TokenEncryptionService encryptionService, 
+        ApplicationContext applicationContext, 
+        com.javaflow.bot.command.UnknownCommandHandler unknownCommandHandler
+    ) {
+        this.botRepository = botRepository;
+        this.messageRepository = messageRepository;
+        this.botAdapters = botAdapters;
+        this.workflowService = workflowService;
+        this.metricsService = metricsService;
+        this.encryptionService = encryptionService;
+        this.applicationContext = applicationContext;
+        this.unknownCommandHandler = unknownCommandHandler;
+    }
 
     /**
      * Crear configuración de bot
@@ -257,7 +279,7 @@ public class BotService {
         String command = messageText.split(" ")[0];
         
         // Find and execute handler
-        com.javaflow.bot.command.BotCommandHandler handler = commandHandlers.get(command);
+        com.javaflow.bot.command.BotCommandHandler handler = getCommandHandler(command);
         if (handler == null) {
             handler = unknownCommandHandler;
         }
@@ -272,6 +294,17 @@ public class BotService {
         // TODO: Buscar workflow asociado al bot/chat
         // TODO: Iniciar workflow con el mensaje como variable
         sendMessage(botId, chatId, "Mensaje recibido: " + messageText);
+    }
+
+    private com.javaflow.bot.command.BotCommandHandler getCommandHandler(String command) {
+        try {
+            // The bean name for a component is its class name, starting with a lowercase letter.
+            String beanName = command.substring(1) + "CommandHandler"; // e.g., /start -> startCommandHandler
+            return applicationContext.getBean(beanName, com.javaflow.bot.command.BotCommandHandler.class);
+        } catch (Exception e) {
+            log.warn("No command handler bean found for command: {}", command);
+            return null;
+        }
     }
 
     // ========== EVENT LISTENERS ==========
